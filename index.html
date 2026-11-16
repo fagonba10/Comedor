@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asistencia Plan Madruga y Comedor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2f6fed">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --ink:#1f2933; --muted:#667085; --line:#d9dde3; --brand:#2f6fed; --ok:#1f9d55; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:var(--brand); color:#fff; padding:12px 16px; }
+  header h1 { margin:0 0 8px; font-size:1.2rem; }
+  nav { display:flex; gap:6px; flex-wrap:wrap; }
+  nav button { background:rgba(255,255,255,.15); color:#fff; border:0; padding:8px 14px; border-radius:8px; font-size:.95rem; cursor:pointer; }
+  nav button.active { background:#fff; color:var(--brand); font-weight:600; }
+  main { max-width:1150px; margin:0 auto; padding:16px; }
+  section { display:none; }
+  section.active { display:block; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:14px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+  label { font-size:.9rem; color:var(--muted); }
+  input[type=text], input[type=date], input[type=month], select, textarea { padding:7px 9px; border:1px solid var(--line); border-radius:8px; font-size:1rem; background:#fff; color:var(--ink); }
+  textarea { width:100%; min-height:110px; font-family:inherit; }
+  button.btn { padding:9px 14px; border:1px solid var(--line); background:#fff; border-radius:8px; cursor:pointer; font-size:.95rem; }
+  button.btn.primary { background:var(--brand); color:#fff; border-color:var(--brand); }
+  button.btn.danger { color:#b42318; }
+  button.btn.sm { padding:4px 9px; font-size:.85rem; }
+  .seg { display:flex; border:1px solid var(--brand); border-radius:10px; overflow:hidden; }
+  .seg button { border:0; background:#fff; color:var(--brand); padding:10px 18px; font-size:1rem; cursor:pointer; }
+  .seg button.active { background:var(--brand); color:#fff; font-weight:600; }
+  .counter { font-weight:600; color:var(--ok); }
+  .group { margin:14px 0 4px; font-weight:700; color:var(--brand); border-bottom:2px solid var(--line); padding-bottom:3px; }
+  .item { display:flex; align-items:center; gap:12px; padding:9px 8px; border-bottom:1px solid var(--line); cursor:pointer; font-size:1.05rem; color:var(--ink); }
+  .item:hover { background:#f0f4ff; }
+  .item > input { width:24px; height:24px; flex:none; }
+  .item.on { background:#e8f7ee; }
+  .item .meta { margin-left:auto; display:flex; gap:10px; align-items:center; }
+  .item .cls { color:var(--muted); font-size:.85rem; }
+  .tag { font-size:.75rem; background:#fff4e5; border:1px solid #ffcf99; border-radius:6px; padding:1px 6px; color:#8a5200; }
+  .mesaSel { font-size:.9rem; padding:5px 7px; }
+  .dchip { display:inline-flex; align-items:center; gap:2px; font-size:.8rem; margin-right:5px; color:var(--ink); white-space:nowrap; }
+  .chip { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:999px; padding:4px 6px 4px 12px; margin:0 8px 8px 0; background:#fff; }
+  table { border-collapse:collapse; width:100%; }
+  th, td { border:1px solid var(--line); padding:5px 7px; text-align:left; font-size:.9rem; }
+  th { background:#eef1f6; }
+  td.c, th.c { text-align:center; padding:3px 2px; }
+  td.we, th.we { background:#f1f1f1; color:#999; }
+  td.x { background:#d9f2e3; font-weight:700; }
+  .muted { color:var(--muted); font-size:.9rem; }
+  .warn { background:#fff4e5; border:1px solid #ffcf99; padding:8px 12px; border-radius:8px; margin-bottom:10px; }
+  .scroll { overflow-x:auto; }
+  .savebar { position:sticky; bottom:0; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; border-top:2px solid var(--line); padding:10px 12px; margin-top:12px; border-radius:0 0 10px 10px; font-weight:600; }
+  .savebar.ok { background:#e8f7ee; color:#146c3a; }
+  .savebar.pending { background:#fff4e5; color:#8a5200; }
+  button.big { padding:12px 24px; font-size:1.05rem; }
+  @media print {
+    @page { size:A4 landscape; margin:10mm; }
+    header, nav, .noprint, .savebar, section:not(.active) { display:none !important; }
+    main { padding:0; max-width:none; }
+    .card { border:0; padding:0; }
+    th, td { font-size:8pt; }
+    td.x { background:#ccc !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Asistencia · Plan Madruga y Comedor</h1>
+  <nav>
+    <button data-tab="diario" class="active">Pasar lista</button>
+    <button data-tab="alumnos">Alumnos y mesas</button>
+    <button data-tab="informe">Informe mensual</button>
+    <button data-tab="cobros">Cobros del mes</button>
+    <button data-tab="copia">Copia de seguridad</button>
+  </nav>
+</header>
+<main>
+
+<!-- PASAR LISTA -->
+<section id="tab-diario" class="active">
+  <div class="card">
+    <div class="row">
+      <div class="seg" id="svcSeg">
+        <button data-svc="madruga">Plan Madruga</button>
+        <button data-svc="comedor" class="active">Comedor</button>
+      </div>
+      <button class="btn" id="prevDay">◀</button>
+      <input type="date" id="dayInput">
+      <button class="btn" id="nextDay">▶</button>
+      <button class="btn" id="todayBtn">Hoy</button>
+    </div>
+    <div class="row">
+      <label>Curso <select id="fClass"></select></label>
+      <label>Orden
+        <select id="fOrder"><option value="curso">Por curso</option><option value="mesa">Por mesa</option><option value="alfa">Alfabético</option></select>
+      </label>
+      <label>Mostrar
+        <select id="fShow"><option value="dia">Los de este día</option><option value="inscritos">Todos los apuntados al servicio</option><option value="todos">Todos los alumnos</option></select>
+      </label>
+      <input type="text" id="fSearch" placeholder="Buscar alumno…">
+    </div>
+    <div class="row">
+      <span class="counter" id="dayCount"></span>
+      <button class="btn" id="markAll">Marcar todos los visibles</button>
+      <button class="btn" id="resetDay">Restaurar los habituales del día</button>
+      <button class="btn danger" id="clearAll">Quitar todas las marcas</button>
+    </div>
+    <div id="weekendWarn" class="warn" style="display:none">Este día es fin de semana.</div>
+    <div id="previewNote" class="warn" style="display:none">Previsión según los días habituales de cada alumno. Pulsa «Guardar lista» cuando la hayas revisado.</div>
+    <div id="dayList"></div>
+    <div id="saveBar" class="savebar pending"><span id="saveStatus"></span><button class="btn primary big" id="saveDay">Guardar lista</button></div>
+  </div>
+</section>
+
+<!-- ALUMNOS Y MESAS -->
+<section id="tab-alumnos">
+  <div class="card">
+    <h3 style="margin-top:0">Mesas del comedor</h3>
+    <p class="muted">Crea aquí las mesas que haya cada temporada. Después se asignan a cada alumno desde el desplegable «Mesa», tanto en esta pantalla como al pasar lista del comedor.</p>
+    <div class="row">
+      <input type="text" id="newMesa" placeholder="Nombre de la mesa">
+      <button class="btn primary" id="addMesa">Añadir mesa</button>
+    </div>
+    <div id="mesaList"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Añadir alumno</h3>
+    <div class="row">
+      <input type="text" id="newName" placeholder="Nombre y apellidos" size="30">
+      <select id="newEtapa"><option value="EI">Educación Infantil</option><option value="EP">Educación Primaria</option></select>
+      <select id="newCurso"><option value="">Curso…</option><option>1º</option><option>2º</option><option>3º</option><option>4º</option><option>5º</option><option>6º</option></select>
+    </div>
+    <div class="row">
+      <span><b>Plan Madruga:</b> <span id="newMadDays"></span></span>
+      <span><b>Comedor:</b> <span id="newComDays"></span></span>
+      <button class="btn primary" id="addStudent">Añadir</button>
+    </div>
+    <details>
+      <summary>Añadir muchos de golpe (pegar lista)</summary>
+      <p class="muted">Un alumno por línea con el formato <b>Nombre; Curso; Días</b>. Por ejemplo <i>Ana García; 3º E.P.; LMX</i>. Los días son las letras L M X J V (si no pones días, se entiende de lunes a viernes). Añade «; sueltos» al final si ese alumno paga por días sueltos. Si el alumno ya existe, se actualiza en lugar de duplicarse.</p>
+      <div class="row">
+        <label>Los días de esta lista son de
+          <select id="bulkSvc"><option value="comedor">Comedor</option><option value="madruga">Plan Madruga</option></select>
+        </label>
+      </div>
+      <textarea id="bulk" placeholder="Ana García López; 3º E.P.; LMXJV&#10;Luis Pérez Ruiz; 4º E.I.; MJ"></textarea>
+      <button class="btn" id="bulkAdd">Añadir lista</button>
+    </details>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <h3 style="margin:0">Alumnos <span class="muted" id="studentCount"></span></h3>
+      <input type="text" id="sSearch" placeholder="Buscar…">
+    </div>
+    <div class="scroll"><table id="studentTable"></table></div>
+  </div>
+</section>
+
+<!-- INFORME -->
+<section id="tab-informe">
+  <div class="card noprint">
+    <div class="row">
+      <label>Mes <input type="month" id="repMonth"></label>
+      <label>Servicio
+        <select id="repSvc"><option value="madruga">Plan Madruga</option><option value="comedor" selected>Comedor</option></select>
+      </label>
+      <label>Curso <select id="repClass"></select></label>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="expXls">Descargar Excel</button>
+      <button class="btn primary" id="expPdf">Guardar en PDF / Imprimir</button>
+    </div>
+    <p class="muted">Para el PDF: pulsa el botón y en la ventana de impresión elige «Guardar como PDF» como impresora.</p>
+    <div id="repWarn" class="warn" style="display:none"></div>
+  </div>
+  <div class="card"><div id="reportOut" class="scroll"></div></div>
+</section>
+
+<!-- COBROS -->
+<section id="tab-cobros">
+  <div class="card noprint">
+    <div class="row">
+      <label>Mes <input type="month" id="cMonth"></label>
+      <label>Curso <select id="cClass"></select></label>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="cXls">Descargar Excel</button>
+      <button class="btn primary" id="cPdf">Guardar en PDF / Imprimir</button>
+    </div>
+    <div id="cWarn" class="warn" style="display:none"></div>
+    <p class="muted">«Contratado» sale de los días habituales marcados en la ficha de cada alumno (los de las hojas del comedor). «Real» sale de la asistencia guardada: los días de la semana a los que ha ido de forma habitual fijan la tarifa y el resto de asistencias se cobran como días sueltos. Las casillas naranjas marcan dónde el real es distinto del contratado.</p>
+    <details>
+      <summary>Tarifas (puedes cambiarlas cuando quieras)</summary>
+      <div id="tarifasBox"></div>
+    </details>
+  </div>
+  <div class="card"><div id="cobrosOut" class="scroll"></div></div>
+</section>
+
+<!-- COPIA -->
+<section id="tab-copia">
+  <div class="card">
+    <h3 style="margin-top:0">Copia de seguridad</h3>
+    <p>Los datos se guardan en el navegador de este ordenador. Si se borran los datos del navegador, se pierden. Haz una copia de vez en cuando y guárdala en un pendrive o en tu correo.</p>
+    <div class="row">
+      <button class="btn primary" id="expJson">Descargar copia</button>
+      <label class="btn" style="cursor:pointer">Restaurar copia… <input type="file" id="impJson" accept=".json" style="display:none"></label>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var KEY = 'asistencia_colegio_v1';
+  var MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var DIAS = ['D','L','M','X','J','V','S'];
+  var SVC = { madruga:'Plan Madruga', comedor:'Comedor' };
+  var WD = [{n:1,l:'L'},{n:2,l:'M'},{n:3,l:'X'},{n:4,l:'J'},{n:5,l:'V'}];
+  var ETAPA = { EI:'E.I.', EP:'E.P.' };
+
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY)); } catch(e){ return null; } }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e){ alert('No se pudo guardar en este navegador.'); } }
+  var db = load() || {};
+  db.students = db.students || []; db.att = db.att || {}; db.mesas = db.mesas || [];
+  var TAR_DEF = {
+    madruga: { normal:[9,15,21,26,30], suelto:3.5 },
+    comedor: { normal:[33,63,89,111,131], reducido:[26,51,75,93,106], suelto:10, meses:[9,12,1,6] }
+  };
+  if (!db.tarifas) db.tarifas = JSON.parse(JSON.stringify(TAR_DEF));
+  if (db.tarifas.umbral === undefined) db.tarifas.umbral = 50;
+
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function pad(n){ return (n<10?'0':'') + n; }
+  function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function cmp(a,b){ return String(a).localeCompare(String(b),'es',{sensitivity:'base',numeric:true}); }
+  function dowOf(ds){ return new Date(ds+'T12:00:00').getDay(); }
+  function byId(id){ return db.students.filter(function(s){ return s.id===id; })[0]; }
+
+  // ---------- Curso / etapa ----------
+  function parseCurso(txt){
+    var m = String(txt||'').match(/(\d+)\s*[º°o]?\s*\.?\s*(E\s*\.?\s*I|E\s*\.?\s*P|infantil|primaria)/i);
+    if (!m) return null;
+    var e = /^(E\s*\.?\s*I|infantil)/i.test(m[2]) ? 'EI' : 'EP';
+    return { curso:m[1]+'º', etapa:e };
+  }
+  function label(s){
+    if (s.etapa || s.curso) return ((s.curso||'') + (s.etapa ? ' '+ETAPA[s.etapa] : '')).trim();
+    return s.cls || '';
+  }
+  function stageRank(s){ return s.etapa==='EI'?0 : s.etapa==='EP'?1 : 2; }
+  function cursoNum(s){ return parseInt(s.curso,10) || 99; }
+  function cmpS(a,b){ return (stageRank(a)-stageRank(b)) || (cursoNum(a)-cursoNum(b)) || cmp(label(a),label(b)) || cmp(a.name,b.name); }
+
+  // ---------- Migración de datos antiguos ----------
+  db.students.forEach(function(s){
+    if (!s.dias) s.dias = { madruga: s.madruga?[1,2,3,4,5]:[], comedor: s.comedor?[1,2,3,4,5]:[] };
+    if (!s.dias.madruga) s.dias.madruga = [];
+    if (!s.dias.comedor) s.dias.comedor = [];
+    delete s.madruga; delete s.comedor;
+    if (s.etapa === undefined && s.curso === undefined) {
+      var p = parseCurso(s.cls); s.etapa = p ? p.etapa : ''; s.curso = p ? p.curso : '';
+    }
+    if (s.mesa === undefined) s.mesa = '';
+  });
+  if (!db.saved) {
+    db.saved = {};
+    Object.keys(db.att).forEach(function(d){
+      ['madruga','comedor'].forEach(function(k){
+        if (Array.isArray(db.att[d][k])) { if (!db.saved[d]) db.saved[d] = {}; db.saved[d][k] = true; }
+      });
+    });
+  }
+  save();
+
+  function enrolled(s,svc){ return s.dias[svc].length > 0; }
+  function usual(s,svc,dow){ return s.dias[svc].indexOf(dow) >= 0; }
+
+  function matchClass(s,v){
+    if (!v) return true;
+    if (v.indexOf('etapa:')===0) return s.etapa === v.slice(6);
+    return label(s) === v.slice(6);
+  }
+  function fillClassSelect(sel){
+    var cur = sel.value, seen = {};
+    var opts = '<option value="">Todos los cursos</option><option value="etapa:EI">Educación Infantil (todos)</option><option value="etapa:EP">Educación Primaria (todos)</option>';
+    db.students.slice().sort(cmpS).forEach(function(s){
+      var l = label(s);
+      if (l && !seen[l]) { seen[l]=1; opts += '<option value="curso:'+esc(l)+'">'+esc(l)+'</option>'; }
+    });
+    sel.innerHTML = opts; sel.value = cur;
+  }
+
+  // ---------- Mesas ----------
+  function mesaOk(s){ return s.mesa && db.mesas.indexOf(s.mesa) >= 0; }
+  function mesaIdx(s){ return mesaOk(s) ? db.mesas.indexOf(s.mesa) : 9999; }
+  function mesaOptions(sel){
+    return '<option value="">Sin mesa</option>' + db.mesas.map(function(m){
+      return '<option value="'+esc(m)+'"'+(m===sel?' selected':'')+'>'+esc(m)+'</option>';
+    }).join('');
+  }
+
+  // ---------- Asistencia ----------
+  function recorded(date,svc){ return !!(db.att[date] && Array.isArray(db.att[date][svc])); }
+  function defaults(date,svc){
+    var dow = dowOf(date);
+    if (dow===0 || dow===6) return [];
+    return db.students.filter(function(s){ return usual(s,svc,dow); }).map(function(s){ return s.id; });
+  }
+  function getAtt(date,svc){ return recorded(date,svc) ? db.att[date][svc] : defaults(date,svc); }
+  function isSaved(date,svc){ return !!(db.saved[date] && db.saved[date][svc]); }
+  function setSaved(date,svc,v){
+    if (v) { if (!db.saved[date]) db.saved[date] = {}; db.saved[date][svc] = true; }
+    else if (db.saved[date]) { delete db.saved[date][svc]; if (!Object.keys(db.saved[date]).length) delete db.saved[date]; }
+  }
+  function setAtt(date,svc,arr){
+    if (!db.att[date]) db.att[date] = {};
+    db.att[date][svc] = arr; setSaved(date,svc,false); save();
+  }
+
+  var state = { svc:'comedor', date:todayStr() };
+
+  // ---------- Pestañas ----------
+  document.querySelectorAll('nav button').forEach(function(b){
+    b.onclick = function(){
+      document.querySelectorAll('nav button').forEach(function(x){ x.classList.toggle('active', x===b); });
+      document.querySelectorAll('section').forEach(function(s){ s.classList.toggle('active', s.id==='tab-'+b.dataset.tab); });
+      if (b.dataset.tab==='informe') renderReport();
+      if (b.dataset.tab==='cobros') { renderTarifas(); renderCobros(); }
+      if (b.dataset.tab==='alumnos') renderStudents();
+      if (b.dataset.tab==='diario') renderDay();
+    };
+  });
+
+  // ---------- Pasar lista ----------
+  function effOrder(){
+    var o = $('fOrder').value;
+    return (o==='mesa' && state.svc!=='comedor') ? 'curso' : o;
+  }
+  function visibleStudents(){
+    var cls = $('fClass').value, q = $('fSearch').value.trim().toLowerCase(), show = $('fShow').value;
+    var present = getAtt(state.date, state.svc), dow = dowOf(state.date);
+    var list = db.students.filter(function(s){
+      if (!matchClass(s,cls)) return false;
+      if (q && s.name.toLowerCase().indexOf(q) < 0) return false;
+      if (show==='todos') return true;
+      if (show==='inscritos') return enrolled(s,state.svc) || present.indexOf(s.id)>=0;
+      return usual(s,state.svc,dow) || present.indexOf(s.id)>=0;
+    });
+    var ord = effOrder();
+    if (ord==='alfa') list.sort(function(a,b){ return cmp(a.name,b.name); });
+    else if (ord==='mesa') list.sort(function(a,b){ return (mesaIdx(a)-mesaIdx(b)) || cmpS(a,b); });
+    else list.sort(cmpS);
+    return list;
+  }
+
+  function renderDay(){
+    fillClassSelect($('fClass'));
+    $('dayInput').value = state.date;
+    var dow = dowOf(state.date), isWE = (dow===0||dow===6);
+    $('weekendWarn').style.display = isWE ? 'block' : 'none';
+    var rec = recorded(state.date, state.svc);
+    if (!rec && !isWE && state.date <= todayStr()) { setAtt(state.date, state.svc, defaults(state.date, state.svc)); rec = true; }
+    $('previewNote').style.display = (!rec && !isWE) ? 'block' : 'none';
+
+    var present = getAtt(state.date, state.svc);
+    var list = visibleStudents();
+    var ord = effOrder(), useMesa = state.svc==='comedor';
+
+    var groups = [], idx = {};
+    list.forEach(function(s){
+      var key = '';
+      if (ord==='curso') key = label(s) || 'Sin curso';
+      else if (ord==='mesa') key = mesaOk(s) ? s.mesa : 'Sin mesa';
+      if (!(key in idx)) { idx[key] = groups.length; groups.push({ name:key, items:[] }); }
+      groups[idx[key]].items.push(s);
+    });
+
+    var html = '';
+    groups.forEach(function(g){
+      if (g.name) {
+        var n = g.items.filter(function(s){ return present.indexOf(s.id)>=0; }).length;
+        html += '<div class="group">'+esc(g.name)+' <span class="muted">· '+n+' de '+g.items.length+'</span></div>';
+      }
+      g.items.forEach(function(s){
+        var on = present.indexOf(s.id) >= 0;
+        html += '<label class="item'+(on?' on':'')+'"><input type="checkbox" data-id="'+s.id+'"'+(on?' checked':'')+'> <span>'+esc(s.name)+'</span>'+
+          (usual(s,state.svc,dow) ? '' : '<span class="tag">no es su día</span>')+
+          '<span class="meta">'+(ord!=='curso' ? '<span class="cls">'+esc(label(s))+'</span>' : '')+
+          (useMesa ? '<select class="mesaSel" data-mesa="'+s.id+'">'+mesaOptions(mesaOk(s)?s.mesa:'')+'</select>' : '')+
+          '</span></label>';
+      });
+    });
+    if (!list.length) html = '<p class="muted">No hay alumnos para mostrar. Prueba a cambiar «Mostrar» o añade alumnos en la pestaña «Alumnos y mesas».</p>';
+    $('dayList').innerHTML = html;
+    $('dayCount').textContent = SVC[state.svc] + ': ' + present.length + ' alumnos este día';
+    var sv = isSaved(state.date, state.svc), bar = $('saveBar');
+    bar.style.display = isWE ? 'none' : '';
+    bar.className = 'savebar ' + (sv ? 'ok' : 'pending');
+    $('saveStatus').textContent = sv ? '✓ Lista de ' + SVC[state.svc] + ' guardada (' + present.length + ' alumnos)' : 'Lista de ' + SVC[state.svc] + ' sin guardar (' + present.length + ' alumnos). Revísala y pulsa «Guardar lista».';
+    $('saveDay').textContent = sv ? 'Guardada ✓' : 'Guardar lista';
+  }
+
+  $('dayList').addEventListener('change', function(e){
+    var t = e.target;
+    if (t.dataset.mesa) {
+      var s = byId(t.dataset.mesa);
+      if (s) { s.mesa = t.value; save(); if ($('fOrder').value==='mesa') renderDay(); }
+      return;
+    }
+    var id = t.dataset.id; if (!id) return;
+    var arr = getAtt(state.date, state.svc).slice();
+    var i = arr.indexOf(id);
+    if (t.checked && i<0) arr.push(id);
+    if (!t.checked && i>=0) arr.splice(i,1);
+    setAtt(state.date, state.svc, arr);
+    renderDay();
+  });
+
+  document.querySelectorAll('#svcSeg button').forEach(function(b){
+    b.onclick = function(){
+      state.svc = b.dataset.svc;
+      document.querySelectorAll('#svcSeg button').forEach(function(x){ x.classList.toggle('active', x===b); });
+      renderDay();
+    };
+  });
+  function shiftDay(n){
+    var d = new Date(state.date+'T12:00:00'); d.setDate(d.getDate()+n);
+    state.date = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); renderDay();
+  }
+  $('prevDay').onclick = function(){ shiftDay(-1); };
+  $('nextDay').onclick = function(){ shiftDay(1); };
+  $('todayBtn').onclick = function(){ state.date = todayStr(); renderDay(); };
+  $('dayInput').onchange = function(){ if (this.value) { state.date = this.value; renderDay(); } };
+  ['fClass','fOrder','fShow'].forEach(function(id){ $(id).onchange = renderDay; });
+  $('fSearch').oninput = renderDay;
+  $('markAll').onclick = function(){
+    var arr = getAtt(state.date, state.svc).slice();
+    visibleStudents().forEach(function(s){ if (arr.indexOf(s.id)<0) arr.push(s.id); });
+    setAtt(state.date, state.svc, arr); renderDay();
+  };
+  $('resetDay').onclick = function(){
+    if (!confirm('¿Volver a marcar solo a los alumnos que vienen habitualmente este día de la semana? Se perderán los cambios hechos a mano en este día.')) return;
+    if (db.att[state.date]) { delete db.att[state.date][state.svc]; if (!Object.keys(db.att[state.date]).length) delete db.att[state.date]; }
+    setSaved(state.date, state.svc, false); save(); renderDay();
+  };
+  $('saveDay').onclick = function(){
+    if (!recorded(state.date, state.svc)) setAtt(state.date, state.svc, getAtt(state.date, state.svc).slice());
+    setSaved(state.date, state.svc, true); save(); renderDay();
+  };
+  $('clearAll').onclick = function(){
+    if (confirm('¿Quitar todas las marcas de '+SVC[state.svc]+' de este día?')) { setAtt(state.date, state.svc, []); renderDay(); }
+  };
+
+  // ---------- Alumnos y mesas ----------
+  function dayChips(attrs, checkedFn){
+    return WD.map(function(w){
+      return '<label class="dchip"><input type="checkbox" '+attrs+' data-d="'+w.n+'"'+(checkedFn(w.n)?' checked':'')+'>'+w.l+'</label>';
+    }).join('');
+  }
+  function renderAddChips(){
+    if ($('newMadDays').dataset.done) return;
+    $('newMadDays').innerHTML = dayChips('data-nd="madruga"', function(){ return false; });
+    $('newComDays').innerHTML = dayChips('data-nd="comedor"', function(){ return true; });
+    $('newMadDays').dataset.done = '1';
+  }
+
+  function renderMesas(){
+    var h = '';
+    db.mesas.forEach(function(m,i){
+      var n = db.students.filter(function(s){ return s.mesa===m; }).length;
+      h += '<span class="chip">'+esc(m)+' <span class="muted">('+n+')</span>'+
+        '<button class="btn sm" data-up="'+i+'" title="Subir">▲</button>'+
+        '<button class="btn sm" data-down="'+i+'" title="Bajar">▼</button>'+
+        '<button class="btn sm" data-ren="'+i+'">Renombrar</button>'+
+        '<button class="btn sm danger" data-delm="'+i+'">✕</button></span>';
+    });
+    if (!db.mesas.length) h = '<p class="muted">Todavía no hay mesas creadas.</p>';
+    $('mesaList').innerHTML = h;
+  }
+  $('addMesa').onclick = function(){
+    var n = $('newMesa').value.trim(); if (!n) return;
+    if (db.mesas.some(function(m){ return cmp(m,n)===0; })) { alert('Ya existe una mesa con ese nombre.'); return; }
+    db.mesas.push(n); save(); $('newMesa').value=''; renderStudents();
+  };
+  $('newMesa').onkeydown = function(e){ if (e.key==='Enter') $('addMesa').click(); };
+  $('mesaList').addEventListener('click', function(e){
+    var d = e.target.dataset, i;
+    if (d.ren !== undefined) {
+      i = +d.ren; var nn = prompt('Nuevo nombre de la mesa:', db.mesas[i]); if (nn===null) return; nn = nn.trim(); if (!nn) return;
+      if (db.mesas.some(function(m,j){ return j!==i && cmp(m,nn)===0; })) { alert('Ya existe una mesa con ese nombre.'); return; }
+      db.students.forEach(function(s){ if (s.mesa===db.mesas[i]) s.mesa = nn; });
+      db.mesas[i] = nn; save(); renderStudents();
+    } else if (d.delm !== undefined) {
+      i = +d.delm;
+      if (confirm('¿Borrar «'+db.mesas[i]+'»? Los alumnos que estaban en ella quedarán sin mesa.')) {
+        db.students.forEach(function(s){ if (s.mesa===db.mesas[i]) s.mesa = ''; });
+        db.mesas.splice(i,1); save(); renderStudents();
+      }
+    } else if (d.up !== undefined || d.down !== undefined) {
+      i = +(d.up !== undefined ? d.up : d.down); var j = d.up !== undefined ? i-1 : i+1;
+      if (j<0 || j>=db.mesas.length) return;
+      var t = db.mesas[i]; db.mesas[i] = db.mesas[j]; db.mesas[j] = t; save(); renderMesas();
+    }
+  });
+
+  function modoOf(s,svc){ return (s.modo && s.modo[svc]) || 'fijo'; }
+  function modoSelect(s,svc){
+    return '<br><select class="mesaSel" data-id="'+s.id+'" data-modo="'+svc+'"><option value="fijo"'+(modoOf(s,svc)==='fijo'?' selected':'')+'>Cuota fija</option><option value="suelto"'+(modoOf(s,svc)==='suelto'?' selected':'')+'>Días sueltos</option></select>';
+  }
+  function renderStudents(){
+    renderAddChips();
+    renderMesas();
+    var q = $('sSearch').value.trim().toLowerCase();
+    var list = db.students.filter(function(s){ return !q || s.name.toLowerCase().indexOf(q)>=0; }).sort(cmpS);
+    $('studentCount').textContent = '(' + db.students.length + ')';
+    var cursos = ['1º','2º','3º','4º','5º','6º'];
+    var h = '<tr><th>Nombre</th><th>Etapa</th><th>Curso</th><th>Mesa</th><th>Plan Madruga</th><th>Comedor</th><th></th></tr>';
+    list.forEach(function(s){
+      h += '<tr><td>'+esc(s.name)+(!s.etapa && !s.curso && s.cls ? ' <span class="tag">'+esc(s.cls)+'</span>' : '')+'</td>'+
+        '<td><select data-id="'+s.id+'" data-f="etapa"><option value="">—</option><option value="EI"'+(s.etapa==='EI'?' selected':'')+'>E.I.</option><option value="EP"'+(s.etapa==='EP'?' selected':'')+'>E.P.</option></select></td>'+
+        '<td><select data-id="'+s.id+'" data-f="curso"><option value="">—</option>'+cursos.map(function(c){ return '<option'+(s.curso===c?' selected':'')+'>'+c+'</option>'; }).join('')+'</select></td>'+
+        '<td><select data-id="'+s.id+'" data-f="mesa">'+mesaOptions(mesaOk(s)?s.mesa:'')+'</select></td>'+
+        '<td>'+dayChips('data-id="'+s.id+'" data-svc="madruga"', function(n){ return s.dias.madruga.indexOf(n)>=0; })+modoSelect(s,'madruga')+'</td>'+
+        '<td>'+dayChips('data-id="'+s.id+'" data-svc="comedor"', function(n){ return s.dias.comedor.indexOf(n)>=0; })+modoSelect(s,'comedor')+'</td>'+
+        '<td><button class="btn sm" data-edit="'+s.id+'">Editar nombre</button> <button class="btn sm danger" data-del="'+s.id+'">Borrar</button></td></tr>';
+    });
+    $('studentTable').innerHTML = h;
+  }
+  $('sSearch').oninput = renderStudents;
+
+  $('studentTable').addEventListener('change', function(e){
+    var t = e.target, id = t.dataset.id; if (!id) return;
+    var s = byId(id); if (!s) return;
+    if (t.dataset.f) {
+      s[t.dataset.f] = t.value; save();
+      if (t.dataset.f==='etapa' || t.dataset.f==='curso') renderStudents(); else renderMesas();
+    } else if (t.dataset.modo) {
+      if (!s.modo) s.modo = {};
+      s.modo[t.dataset.modo] = t.value; save();
+    } else if (t.dataset.svc) {
+      var d = +t.dataset.d, arr = s.dias[t.dataset.svc], i = arr.indexOf(d);
+      if (t.checked && i<0) arr.push(d);
+      if (!t.checked && i>=0) arr.splice(i,1);
+      arr.sort(); save();
+    }
+  });
+  $('studentTable').addEventListener('click', function(e){
+    var id = e.target.dataset.del || e.target.dataset.edit; if (!id) return;
+    var s = byId(id); if (!s) return;
+    if (e.target.dataset.del) {
+      if (confirm('¿Borrar a '+s.name+'? También se perderá su historial de asistencia.')) {
+        db.students = db.students.filter(function(x){ return x.id!==id; });
+        Object.keys(db.att).forEach(function(d){
+          ['madruga','comedor'].forEach(function(k){
+            if (db.att[d][k]) db.att[d][k] = db.att[d][k].filter(function(x){ return x!==id; });
+          });
+        });
+        save(); renderStudents();
+      }
+    } else {
+      var n = prompt('Nombre:', s.name); if (n === null) return;
+      if (n.trim()) { s.name = n.trim(); save(); renderStudents(); }
+    }
+  });
+
+  $('addStudent').onclick = function(){
+    var n = $('newName').value.trim(); if (!n) return;
+    var s = { id:uid(), name:n, etapa:$('newEtapa').value, curso:$('newCurso').value, mesa:'', dias:{ madruga:[], comedor:[] } };
+    document.querySelectorAll('[data-nd]').forEach(function(c){ if (c.checked) s.dias[c.dataset.nd].push(+c.dataset.d); });
+    db.students.push(s); save();
+    $('newName').value=''; $('newName').focus(); renderStudents();
+  };
+  $('newName').onkeydown = function(e){ if (e.key==='Enter') $('addStudent').click(); };
+
+  function parseDays(str){
+    str = String(str||'').toUpperCase().replace(/\s/g,'');
+    if (!str || /^L-V$/.test(str)) return [1,2,3,4,5];
+    var map = { L:1, M:2, X:3, J:4, V:5 }, out = [];
+    str.split('').forEach(function(c){ if (map[c] && out.indexOf(map[c])<0) out.push(map[c]); });
+    return out.sort();
+  }
+  function normName(n){ return String(n).trim().replace(/\s+/g,' ').toLowerCase(); }
+  $('bulkAdd').onclick = function(){
+    var svc = $('bulkSvc').value, added = 0, updated = 0, badCourse = 0;
+    $('bulk').value.split(/\r?\n/).forEach(function(l){
+      l = l.trim(); if (!l) return;
+      var p = l.split(/;|\t/).map(function(x){ return x.trim(); });
+      var name = p[0]; if (!name) return;
+      var cur = p[1] ? parseCurso(p[1]) : null;
+      if (p[1] && !cur) badCourse++;
+      var days = parseDays(p[2]);
+      var s = db.students.filter(function(x){ return normName(x.name)===normName(name); })[0];
+      if (s) { updated++; }
+      else { s = { id:uid(), name:name, etapa:'', curso:'', mesa:'', dias:{ madruga:[], comedor:[] } }; db.students.push(s); added++; }
+      if (cur) { s.etapa = cur.etapa; s.curso = cur.curso; }
+      s.dias[svc] = days;
+      if (/suelt/i.test(p[3]||'')) { if (!s.modo) s.modo = {}; s.modo[svc] = 'suelto'; }
+    });
+    save(); $('bulk').value=''; renderStudents();
+    alert(added+' alumnos añadidos y '+updated+' actualizados.'+(badCourse ? '\nNo se entendió el curso en '+badCourse+' líneas (usa el formato 3º E.P. o 4º E.I.).' : ''));
+  };
+
+  // ---------- Informe mensual ----------
+  $('repMonth').value = todayStr().slice(0,7);
+  function buildReport(){
+    var ym = $('repMonth').value; if (!ym) return null;
+    var svc = $('repSvc').value, cls = $('repClass').value;
+    var y = +ym.slice(0,4), m = +ym.slice(5,7), nd = new Date(y,m,0).getDate();
+    var days = [];
+    for (var d=1; d<=nd; d++) days.push({ n:d, key:ym+'-'+pad(d), dow:new Date(y,m-1,d).getDay() });
+    function rec(key){ return isSaved(key,svc) ? ((db.att[key] && db.att[key][svc]) || []) : []; }
+    var rows = db.students.filter(function(s){
+      if (!matchClass(s,cls)) return false;
+      if (enrolled(s,svc)) return true;
+      return days.some(function(dd){ return rec(dd.key).indexOf(s.id)>=0; });
+    }).sort(cmpS);
+    return { ym:ym, svc:svc, cls:cls, y:y, m:m, days:days, rows:rows, rec:rec };
+  }
+  function renderReport(){
+    fillClassSelect($('repClass'));
+    var r = buildReport(); if (!r) { $('reportOut').innerHTML=''; return; }
+    var clsTxt = '';
+    if (r.cls) clsTxt = ' · ' + (r.cls.indexOf('etapa:')===0 ? (r.cls==='etapa:EI'?'Educación Infantil':'Educación Primaria') : r.cls.slice(6));
+    var title = SVC[r.svc]+' · '+MESES[r.m-1]+' '+r.y+clsTxt;
+    var h = '<h2 style="margin-top:0">'+esc(title)+'</h2><table border="1" cellspacing="0" cellpadding="3"><tr><th>Alumno</th><th>Curso</th>';
+    r.days.forEach(function(d){
+      var we = (d.dow===0||d.dow===6);
+      h += '<th class="c'+(we?' we':'')+'"'+(we?' style="background:#eeeeee;color:#999999"':'')+'>'+DIAS[d.dow]+'<br>'+d.n+'</th>';
+    });
+    h += '<th class="c">Total</th></tr>';
+    var colTot = r.days.map(function(){ return 0; }), grand = 0;
+    r.rows.forEach(function(s){
+      var t = 0;
+      h += '<tr><td>'+esc(s.name)+'</td><td>'+esc(label(s))+'</td>';
+      r.days.forEach(function(d,i){
+        var on = r.rec(d.key).indexOf(s.id)>=0, we = (d.dow===0||d.dow===6);
+        if (on) { t++; colTot[i]++; }
+        h += '<td class="c'+(we?' we':'')+(on?' x':'')+'"'+(on?' style="background:#d9f2e3;font-weight:bold"':(we?' style="background:#eeeeee"':''))+'>'+(on?'X':'')+'</td>';
+      });
+      grand += t;
+      h += '<td class="c"><b>'+t+'</b></td></tr>';
+    });
+    h += '<tr><th colspan="2">Total por día</th>';
+    colTot.forEach(function(t){ h += '<th class="c">'+(t||'')+'</th>'; });
+    h += '<th class="c">'+grand+'</th></tr></table>';
+    if (!r.rows.length) h += '<p class="muted">No hay alumnos para este servicio.</p>';
+    $('reportOut').innerHTML = h;
+
+    // Días laborables pasados sin lista guardada
+    var today = todayStr(), missing = [];
+    r.days.forEach(function(d){
+      if (d.dow>=1 && d.dow<=5 && d.key<=today && !isSaved(d.key, r.svc)) missing.push(d.n);
+    });
+    var w = $('repWarn');
+    if (missing.length) {
+      w.style.display = 'block';
+      w.textContent = 'Días laborables de este mes sin lista guardada de ' + SVC[r.svc] + ': ' + missing.join(', ') + '. Si fueron festivos o no hubo servicio, no pasa nada; si no, ábrelos en «Pasar lista» y pulsa «Guardar lista» antes de sacar el informe (solo cuentan los días guardados).';
+    } else w.style.display = 'none';
+    return title;
+  }
+  ['repMonth','repSvc','repClass'].forEach(function(id){ $(id).onchange = renderReport; });
+  $('expPdf').onclick = function(){ renderReport(); window.print(); };
+  $('expXls').onclick = function(){
+    renderReport();
+    var r = buildReport(); if (!r) return;
+    var html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body>'+$('reportOut').innerHTML+'</body></html>';
+    download(new Blob(['\ufeff'+html], {type:'application/vnd.ms-excel'}), SVC[r.svc].replace(' ','_')+'_'+r.ym+'.xls');
+  };
+
+
+  // ---------- Cobros ----------
+  $('cMonth').value = todayStr().slice(0,7);
+  function fmt(n){ return n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function plural(n,a,b){ return n + ' ' + (n===1 ? a : b); }
+  function numInput(path,val){ return '<input type="number" min="0" step="0.01" data-path="'+path+'" value="'+val+'" style="width:85px">'; }
+
+  function renderTarifas(){
+    var T = db.tarifas;
+    function fila(titulo, base, arr){
+      var h = '<tr><th>'+titulo+'</th>';
+      for (var i=0;i<5;i++) h += '<td>'+numInput(base+'.'+i, arr[i])+'</td>';
+      return h + '</tr>';
+    }
+    var h = '<div class="scroll"><table style="width:auto;margin-top:8px"><tr><th></th><th>1 día/sem</th><th>2 días/sem</th><th>3 días/sem</th><th>4 días/sem</th><th>5 días/sem</th></tr>';
+    h += fila('Plan Madruga','madruga.normal',T.madruga.normal);
+    h += fila('Comedor','comedor.normal',T.comedor.normal);
+    h += fila('Comedor, meses reducidos','comedor.reducido',T.comedor.reducido);
+    h += '</table></div>';
+    h += '<p>Día suelto · Plan Madruga: '+numInput('madruga.suelto',T.madruga.suelto)+' € · Comedor: '+numInput('comedor.suelto',T.comedor.suelto)+' €</p>';
+    h += '<p>Un día de la semana cuenta como habitual si el alumno ha ido al menos al <input type="number" min="1" max="100" step="1" data-path="umbral" value="'+T.umbral+'" style="width:70px"> % de esos días del mes.</p>';
+    h += '<p>Meses con la tarifa reducida de comedor:<br>'+MESES.map(function(n,i){
+      return '<label class="dchip"><input type="checkbox" data-mes="'+(i+1)+'"'+(T.comedor.meses.indexOf(i+1)>=0?' checked':'')+'>'+n+'</label>';
+    }).join('')+'</p>';
+    $('tarifasBox').innerHTML = h;
+  }
+  $('tarifasBox').addEventListener('change', function(e){
+    var t = e.target;
+    if (t.dataset.path) {
+      var p = t.dataset.path.split('.'), o = db.tarifas, i;
+      for (i=0;i<p.length-1;i++) o = o[p[i]];
+      o[p[p.length-1]] = parseFloat(String(t.value).replace(',','.')) || 0;
+      save(); renderCobros();
+    } else if (t.dataset.mes) {
+      var m = +t.dataset.mes, a = db.tarifas.comedor.meses, k = a.indexOf(m);
+      if (t.checked && k<0) a.push(m);
+      if (!t.checked && k>=0) a.splice(k,1);
+      save(); renderCobros();
+    }
+  });
+
+  function savedDates(s,svc,ym){
+    var out = [];
+    Object.keys(db.att).forEach(function(d){
+      if (d.slice(0,7)!==ym || !isSaved(d,svc)) return;
+      var a = db.att[d][svc];
+      if (Array.isArray(a) && a.indexOf(s.id)>=0) out.push(d);
+    });
+    return out;
+  }
+  function calcFee(s,svc,ym){
+    var T = db.tarifas[svc], m = +ym.slice(5,7);
+    var tabla = (T.reducido && T.meses.indexOf(m)>=0) ? T.reducido : T.normal;
+    var dates = savedDates(s,svc,ym);
+    var r = { asist:dates.length, imp:0, detalle:'' };
+    if (!dates.length) return r;
+    if (modoOf(s,svc)==='suelto') {
+      r.imp = dates.length*T.suelto;
+      r.detalle = plural(dates.length,'día suelto','días sueltos');
+      return r;
+    }
+    // Días de la semana que se dieron (listas guardadas) y a cuántos fue el alumno
+    var occ = [0,0,0,0,0,0,0], got = [0,0,0,0,0,0,0];
+    Object.keys(db.att).forEach(function(d){
+      if (d.slice(0,7)===ym && isSaved(d,svc)) occ[dowOf(d)]++;
+    });
+    dates.forEach(function(d){ got[dowOf(d)]++; });
+    var thr = (db.tarifas.umbral===undefined ? 50 : db.tarifas.umbral)/100;
+    var regular = [];
+    WD.forEach(function(w){
+      if (occ[w.n]>0 && got[w.n]>0 && got[w.n]/occ[w.n] >= thr) regular.push(w);
+    });
+    var extras = dates.filter(function(d){
+      var dw = dowOf(d); return !regular.some(function(w){ return w.n===dw; });
+    }).length;
+    r.imp = (regular.length ? tabla[regular.length-1] : 0) + extras*T.suelto;
+    var parts = [];
+    if (regular.length) parts.push(regular.length+(regular.length===1?' día':' días')+'/semana ('+regular.map(function(w){ return w.l; }).join(' ')+')');
+    if (extras) parts.push(plural(extras,'día suelto','días sueltos'));
+    r.detalle = parts.join(' + ');
+    return r;
+  }
+  function missingDays(ym,svc){
+    var y = +ym.slice(0,4), m = +ym.slice(5,7), nd = new Date(y,m,0).getDate(), out = [], today = todayStr();
+    for (var d=1; d<=nd; d++) {
+      var key = ym+'-'+pad(d), dow = dowOf(key);
+      if (dow>=1 && dow<=5 && key<=today && !isSaved(key,svc)) out.push(d);
+    }
+    return out;
+  }
+
+  function contratado(s,svc,ym){
+    var T = db.tarifas[svc], m = +ym.slice(5,7);
+    var tabla = (T.reducido && T.meses.indexOf(m)>=0) ? T.reducido : T.normal, plan = s.dias[svc];
+    if (modoOf(s,svc)==='fijo' && plan.length>0) {
+      return { imp: tabla[plan.length-1] || 0,
+        detalle: plan.length+(plan.length===1?' día':' días')+'/semana ('+WD.filter(function(w){ return plan.indexOf(w.n)>=0; }).map(function(w){ return w.l; }).join(' ')+')' };
+    }
+    return { imp:0, detalle: modoOf(s,svc)==='suelto' ? 'días sueltos' : '' };
+  }
+
+  function renderCobros(){
+    fillClassSelect($('cClass'));
+    var ym = $('cMonth').value; if (!ym) { $('cobrosOut').innerHTML=''; return; }
+    var cls = $('cClass').value, y = +ym.slice(0,4), m = +ym.slice(5,7);
+    var red = db.tarifas.comedor.meses.indexOf(m)>=0;
+    var clsTxt = '';
+    if (cls) clsTxt = ' · ' + (cls.indexOf('etapa:')===0 ? (cls==='etapa:EI'?'Educación Infantil':'Educación Primaria') : cls.slice(6));
+    var list = db.students.filter(function(s){ return matchClass(s,cls); }).sort(cmpS);
+    var tot = { mc:0, mr:0, cc:0, cr:0 }, rows = '', n = 0;
+    function cell(v, hl){ return '<td style="text-align:right'+(hl?';background:#fff4e5':'')+'">'+(v?fmt(v):'')+'</td>'; }
+    list.forEach(function(s){
+      var mc = contratado(s,'madruga',ym), mr = calcFee(s,'madruga',ym);
+      var cc = contratado(s,'comedor',ym), cr = calcFee(s,'comedor',ym);
+      var inM = enrolled(s,'madruga') || mr.asist, inC = enrolled(s,'comedor') || cr.asist;
+      if (!inM && !inC) return;
+      n++;
+      tot.mc += mc.imp; tot.mr += mr.imp; tot.cc += cc.imp; tot.cr += cr.imp;
+      var totC = mc.imp + cc.imp, totR = mr.imp + cr.imp, lines = [];
+      if (inC) lines.push('Comedor: contratado '+(cc.detalle||'—')+' · real '+(cr.detalle||'sin asistencia'));
+      if (inM) lines.push('Plan Madruga: contratado '+(mc.detalle||'—')+' · real '+(mr.detalle||'sin asistencia'));
+      rows += '<tr><td>'+esc(s.name)+'</td><td>'+esc(label(s))+'</td>'+
+        cell(mc.imp) + cell(mr.imp, mr.imp!==mc.imp) + cell(cc.imp) + cell(cr.imp, cr.imp!==cc.imp) +
+        '<td style="text-align:right"><b>'+fmt(totC)+'</b></td>'+
+        '<td style="text-align:right'+(totR!==totC?';background:#fff4e5':'')+'"><b>'+fmt(totR)+'</b></td>'+
+        '<td style="font-size:.8rem">'+lines.map(esc).join('<br>')+'</td></tr>';
+    });
+    var tC = tot.mc + tot.cc, tR = tot.mr + tot.cr;
+    var h = '<h2 style="margin-top:0">Cobros · '+MESES[m-1]+' '+y+esc(clsTxt)+'</h2>'+
+      '<p>Tarifa de comedor aplicada: <b>'+(red?'reducida':'normal')+'</b>.</p>'+
+      '<p><b>Total contratado:</b> '+fmt(tC)+' € · <b>Total real (según asistencia):</b> '+fmt(tR)+' € · <b>Diferencia:</b> '+fmt(tR-tC)+' € · '+n+' alumnos</p>'+
+      '<table border="1" cellspacing="0" cellpadding="4"><tr><th>Alumno</th><th>Curso</th><th>Madruga contratado (€)</th><th>Madruga real (€)</th><th>Comedor contratado (€)</th><th>Comedor real (€)</th><th>Total contratado (€)</th><th>Total real (€)</th><th>Detalle</th></tr>'+
+      rows+
+      '<tr><th colspan="2">Totales</th>'+
+      [tot.mc,tot.mr,tot.cc,tot.cr,tC,tR].map(function(v){ return '<th style="text-align:right">'+fmt(v)+'</th>'; }).join('')+'<th></th></tr></table>';
+    if (!rows) h += '<p class="muted">No hay alumnos apuntados a ningún servicio.</p>';
+    $('cobrosOut').innerHTML = h;
+
+    var msgs = [];
+    ['comedor','madruga'].forEach(function(svc){
+      if (!db.students.some(function(s){ return enrolled(s,svc); })) return;
+      var miss = missingDays(ym,svc);
+      if (miss.length) msgs.push(SVC[svc]+': '+miss.join(', '));
+    });
+    var w = $('cWarn');
+    if (msgs.length) {
+      w.style.display = 'block';
+      w.textContent = 'Días laborables sin lista guardada (' + msgs.join(' · ') + '). Los días sin guardar no cuentan en el importe real. Si fueron festivos, no pasa nada.';
+    } else w.style.display = 'none';
+  }
+  ['cMonth','cClass'].forEach(function(id){ $(id).onchange = renderCobros; });
+  $('cPdf').onclick = function(){ renderCobros(); window.print(); };
+  $('cXls').onclick = function(){
+    renderCobros();
+    var ym = $('cMonth').value; if (!ym) return;
+    var html = '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body>'+$('cobrosOut').innerHTML+'</body></html>';
+    download(new Blob(['﻿'+html], {type:'application/vnd.ms-excel'}), 'Cobros_'+ym+'.xls');
+  };
+
+  // ---------- Copia de seguridad ----------
+  function download(blob, name){
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  $('expJson').onclick = function(){
+    download(new Blob([JSON.stringify(db)], {type:'application/json'}), 'copia_asistencia_'+todayStr()+'.json');
+  };
+  $('impJson').onchange = function(){
+    var f = this.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function(){
+      try {
+        var d = JSON.parse(rd.result);
+        if (!d.students || !d.att) throw 0;
+        if (confirm('Esto sustituirá todos los datos actuales por los de la copia. ¿Continuar?')) { localStorage.setItem(KEY, JSON.stringify(d)); location.reload(); }
+      } catch(e){ alert('El archivo no es una copia válida.'); }
+    };
+    rd.readAsText(f);
+    this.value = '';
+  };
+
+  renderAddChips();
+  renderDay();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) { window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e) {}
+</script>
+</body>
+</html>
